@@ -49,10 +49,10 @@ class DesktopCapabilityService:
 
         # 3. UI Automation probe (pywinauto or ctypes UI automation)
         ui_automation_available = False
-        try:
-            import pywinauto
+        import importlib.util
+        if importlib.util.find_spec("pywinauto") is not None:
             ui_automation_available = True
-        except ImportError:
+        else:
             # Fallback check for Windows native UI Automation COM/ctypes
             if is_windows:
                 try:
