@@ -61,8 +61,21 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
         init_db()
         logger.info("Database schema validated and ready.")
+        
+        # Phase 4 Task Recovery: Reconcile any tasks interrupted during previous run
+        from app.database.session import SessionLocal
+        from app.orchestration.task_repository import TaskRepository
+        from app.orchestration.recovery import TaskRecoveryManager
+        db_recovery = SessionLocal()
+        try:
+            recovery_mgr = TaskRecoveryManager(TaskRepository(db_recovery))
+            recovered_count = recovery_mgr.recover_interrupted_tasks()
+            if recovered_count > 0:
+                logger.info(f"Task recovery completed: {recovered_count} interrupted task(s) reconciled.")
+        finally:
+            db_recovery.close()
     except Exception as exc:
-        logger.error(f"Database initialization failed during startup: {exc}", exc_info=True)
+        logger.error(f"Database/recovery initialization failed during startup: {exc}", exc_info=True)
 
     yield
 

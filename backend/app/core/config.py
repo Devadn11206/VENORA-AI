@@ -136,6 +136,27 @@ class Settings(BaseSettings):
         description="Maximum permitted character length for user input messages"
     )
 
+    # =========================================================================
+    # Phase 4: Task Orchestration & Execution Limits
+    # =========================================================================
+    MAX_PLAN_STEPS: int = Field(
+        default=10,
+        description="Maximum number of steps permitted in a structured task plan"
+    )
+    MAX_TASK_DURATION_SECONDS: float = Field(
+        default=300.0,  # 5 minutes
+        description="Maximum wall-clock execution duration for an orchestrated task"
+    )
+    MAX_PLANNING_ATTEMPTS: int = Field(
+        default=3,
+        description="Maximum plan generation attempts permitted per user task"
+    )
+    STEP_DEFAULT_TIMEOUT_SECONDS: float = Field(
+        default=30.0,
+        description="Default execution timeout per task step"
+    )
+
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:

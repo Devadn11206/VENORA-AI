@@ -23,9 +23,11 @@ class TaskService:
 
     def create_task(self, task_in: TaskCreate) -> Task:
         """Create a new task with initial PENDING status and record creation event."""
+        task_title = (task_in.title or task_in.goal or "Untitled Task").strip()
+        task_desc = (task_in.description or task_in.goal or "").strip() or None
         task = Task(
-            title=task_in.title.strip(),
-            description=task_in.description.strip() if task_in.description else None,
+            title=task_title[:255],
+            description=task_desc,
             priority=task_in.priority,
             status=TaskStatus.PENDING,
             created_at=utc_now(),
@@ -33,6 +35,7 @@ class TaskService:
         )
         self.db.add(task)
         self.db.flush()  # Obtain task.id
+
 
         # Record creation event log
         log_entry = ExecutionLog(

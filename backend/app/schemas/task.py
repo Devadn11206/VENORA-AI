@@ -1,8 +1,9 @@
 """Pydantic schemas for Task validation, serialization, and API responses."""
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any
 from pydantic import BaseModel, ConfigDict, Field
+
 
 from app.models.task import TaskPriority, TaskStatus
 
@@ -14,9 +15,14 @@ class TaskBase(BaseModel):
     priority: TaskPriority = Field(default=TaskPriority.NORMAL, description="Execution priority")
 
 
-class TaskCreate(TaskBase):
-    """Schema for creating a new task."""
-    pass
+class TaskCreate(BaseModel):
+    """Schema for creating a new task, supporting both Phase 1 titles and Phase 4 natural language goals."""
+    title: Optional[str] = Field(default=None, min_length=1, max_length=255, description="Brief title of the task")
+    goal: Optional[str] = Field(default=None, min_length=1, max_length=2000, description="Natural language goal for orchestration")
+    description: Optional[str] = Field(default=None, description="Detailed explanation or context")
+    priority: TaskPriority = Field(default=TaskPriority.NORMAL, description="Execution priority")
+    auto_execute: bool = Field(default=False, description="Whether to immediately execute if plan is ready")
+
 
 
 class TaskUpdate(BaseModel):
@@ -39,8 +45,19 @@ class TaskResponse(BaseModel):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     error_message: Optional[str] = None
+    plan_summary: Optional[str] = None
+    current_step_id: Optional[str] = None
+    cancellation_requested: bool = False
+    total_steps: int = 0
+    completed_steps: int = 0
+    failed_steps: int = 0
+    skipped_steps: int = 0
+    progress_percentage: float = 0.0
 
     model_config = ConfigDict(from_attributes=True)
+
+
+
 
 
 class PaginatedTasksResponse(BaseModel):

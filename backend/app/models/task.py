@@ -10,18 +10,26 @@ from app.database.base import Base, utc_now
 
 if TYPE_CHECKING:
     from app.models.execution_log import ExecutionLog
+    from app.models.task_step import TaskStep
+
 
 
 class TaskStatus(str, enum.Enum):
     """Lifecycle statuses for a Task."""
     PENDING = "pending"
+    CREATED = "created"
     PLANNING = "planning"
     AWAITING_APPROVAL = "awaiting_approval"
+    READY = "ready"
     RUNNING = "running"
-    VERIFYING = "verifying"
+    PAUSED = "paused"
+    CANCELLING = "cancelling"
+    CANCELLED = "cancelled"
     COMPLETED = "completed"
     FAILED = "failed"
-    CANCELLED = "cancelled"
+    PARTIALLY_COMPLETED = "partially_completed"
+    NEEDS_ATTENTION = "needs_attention"
+
 
 
 class TaskPriority(str, enum.Enum):
@@ -73,6 +81,9 @@ class Task(Base):
         nullable=True
     )
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    plan_summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    current_step_id: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    cancellation_requested: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     # Relationships
     execution_logs: Mapped[List["ExecutionLog"]] = relationship(
@@ -81,14 +92,33 @@ class Task(Base):
         cascade="all, delete-orphan",
         order_by="ExecutionLog.created_at.asc()"
     )
+    steps: Mapped[List["TaskStep"]] = relationship(
+        "TaskStep",
+        back_populates="task",
+        cascade="all, delete-orphan",
+        order_by="TaskStep.sequence_number.asc()"
+    )
 
     def is_terminal(self) -> bool:
         """Check if task is in a terminal state that cannot be reopened."""
-        return self.status in {TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED}
+        return self.status in {
+            TaskStatus.COMPLETED,
+            TaskStatus.FAILED,
+            TaskStatus.CANCELLED,
+            TaskStatus.PARTIALLY_COMPLETED,
+        }
 
     def can_be_cancelled(self) -> bool:
-        """Check if task is eligible to be cancelled (has not started executing)."""
-        return self.status in {TaskStatus.PENDING, TaskStatus.PLANNING, TaskStatus.AWAITING_APPROVAL}
+        """Check if task is eligible to be cancelled before execution."""
+        return self.status in {
+            TaskStatus.PENDING,
+            TaskStatus.CREATED,
+            TaskStatus.PLANNING,
+            TaskStatus.AWAITING_APPROVAL,
+            TaskStatus.READY,
+        }
+
+
 
     def __repr__(self) -> str:
         return f"<Task id={self.id} title={self.title!r} status={self.status.value}>"

@@ -151,3 +151,38 @@ class ValidationError(VenoraError):
     """Raised when request payload or input parameter fails semantic validation."""
     pass
 
+
+# =========================================================================
+# Phase 4: Task Orchestration & Execution Exceptions
+# =========================================================================
+class PlanValidationError(VenoraError):
+    """Raised when a generated or submitted task plan violates structural/dependency rules."""
+    def __init__(self, message: str, details: Optional[Any] = None) -> None:
+        super().__init__(f"Task plan validation error: {message}", details=details)
+
+
+class StepDependencyError(VenoraError):
+    """Raised when step dependencies are unmet, cyclic, or missing."""
+    pass
+
+
+class TaskNotEligibleError(VenoraError):
+    """Raised when a task cannot execute in its current lifecycle state."""
+    pass
+
+
+class TaskApprovalRequiredError(VenoraError):
+    """Raised when attempting to execute a task or step requiring explicit approval."""
+    pass
+
+
+class TaskTimeoutError(VenoraError):
+    """Raised when task or step exceeds configured execution timeout."""
+    pass
+
+
+class TaskCancelledError(VenoraError):
+    """Raised when execution halts due to user or system cancellation."""
+    pass
+
+
