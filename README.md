@@ -7,9 +7,9 @@ VENORA AI is a modular, locally executable, personal AI agent designed for Windo
 
 ---
 
-## Current Status: Phase 7 (Long-Term Memory & Retrieval Complete)
+## Current Status: Phase 8 (Voice Interface Complete)
 
-Phase 7 builds upon Phases 1 through 6 by introducing the Long-Term Memory, Semantic Retrieval & Contextual Recall Subsystem:
+Phase 8 introduces the Voice Interface Subsystem, enabling speech recognition, controlled microphone capture, and voice responses:
 - **FastAPI Core**: Asynchronous application with versioned REST API (`/api/v1`).
 - **AI Provider Abstraction**: Modular `BaseAIProvider` and `OpenRouterProvider` with graceful offline fallback and zero credential leaks.
 - **Controlled Tool Registry**: Strict validation of tool names and Pydantic arguments with automatic rejection of unknown commands.
@@ -26,9 +26,11 @@ Phase 7 builds upon Phases 1 through 6 by introducing the Long-Term Memory, Sema
 - **Long-Term Memory Subsystem**: Durable persistent storage for user preferences, explicit facts, project context, procedural workflows, and conversation summaries.
 - **Hybrid Semantic & Lexical Retrieval**: SQLite FTS5 full-text indexing combined with vector embedding cosine similarity and recency decay ranking.
 - **Deduplication & State-Aware Conflict Resolution**: Exact content hash deduplication with automatic supersession of outdated facts.
-- **Privacy & Prompt Injection Defenses**: Automatic credential redaction (`[REDACTED_SECRET]`) and memory prompt isolation.
-- **Memory REST API & Tools**: Full CRUD, search, diagnostics, and 7 permission-controlled memory tools.
-- **Comprehensive Testing**: 133 out of 133 automated tests passing across Phases 1 through 7.
+- **Voice Interface & Audio Validation**: Multi-format audio validation (WAV, OGG, MP3, WEBM), bounded duration/size, and path-traversal-proof artifact delivery.
+- **Speech-to-Text & Text-to-Speech Abstractions**: Pluggable STT and TTS provider interfaces with deterministic mock providers for testing.
+- **Controlled Microphone Capture**: Explicit opt-in recording with hardware detection and strict prohibition on background/startup listening.
+- **Voice Sessions & AI Integration**: Stateful session lifecycle tracking, seamless routing into Phase 3 Reasoning and Phase 7 Memory, and optional spoken responses.
+- **Comprehensive Testing**: 152 out of 152 automated tests passing across Phases 1 through 8.
 
 ---
 

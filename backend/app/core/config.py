@@ -310,6 +310,66 @@ class Settings(BaseSettings):
         description="Timeout for memory retrieval queries"
     )
 
+    # =========================================================================
+    # Phase 8: Voice Interface & Audio Processing Configuration
+    # =========================================================================
+    VOICE_ENABLED: bool = Field(
+        default=True,
+        description="Master toggle for the voice interface subsystem"
+    )
+    VOICE_MICROPHONE_ENABLED: bool = Field(
+        default=False,
+        description="Explicit user consent toggle for local microphone hardware capture (default disabled for safety)"
+    )
+    VOICE_STT_PROVIDER: Optional[str] = Field(
+        default="mock",
+        description="Speech-to-text provider identifier (e.g. 'mock', 'openrouter', 'windows')"
+    )
+    VOICE_TTS_PROVIDER: Optional[str] = Field(
+        default="mock",
+        description="Text-to-speech provider identifier (e.g. 'mock', 'windows_system', 'openrouter')"
+    )
+    VOICE_TTS_ENABLED: bool = Field(
+        default=True,
+        description="Allow spoken audio response synthesis"
+    )
+    VOICE_DEFAULT_LANGUAGE: str = Field(
+        default="en",
+        description="Default language code for STT and TTS operations (e.g. 'en', 'en-US')"
+    )
+    VOICE_MAX_RECORDING_SECONDS: float = Field(
+        default=60.0,
+        description="Maximum continuous microphone recording duration in seconds"
+    )
+    VOICE_MAX_AUDIO_MB: float = Field(
+        default=15.0,
+        description="Maximum permitted audio payload size in megabytes"
+    )
+    VOICE_MAX_RESPONSE_CHARS: int = Field(
+        default=4000,
+        description="Maximum text character length passed to text-to-speech synthesis"
+    )
+    VOICE_MAX_CONCURRENT_SESSIONS: int = Field(
+        default=1,
+        description="Maximum simultaneous active voice interaction sessions"
+    )
+    VOICE_SESSION_TIMEOUT_SECONDS: float = Field(
+        default=300.0,
+        description="Timeout after which inactive voice sessions are marked expired and released"
+    )
+    VOICE_PROVIDER_TIMEOUT_SECONDS: float = Field(
+        default=60.0,
+        description="Timeout for external or local STT/TTS provider operations"
+    )
+    VOICE_AUDIO_RETENTION_MINUTES: int = Field(
+        default=30,
+        description="Retention lifetime in minutes for temporary synthesized and recorded audio files"
+    )
+    VOICE_AUDIO_DIR: str = Field(
+        default="./data/audio",
+        description="Application-managed directory for temporary voice audio artifacts"
+    )
+
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

@@ -57,6 +57,16 @@ class DesktopPermissionService:
         "memory.update",
         "memory.archive",
         "memory.delete",
+        # Phase 8: Voice Interface Permissions
+        "voice.capabilities.read",
+        "voice.session.create",
+        "voice.session.cancel",
+        "voice.capture.start",
+        "voice.capture.stop",
+        "voice.transcribe",
+        "voice.synthesize",
+        "voice.respond",
+        "voice.audio.read",
     }
 
     # Approved standard keyboard keys allowlist
@@ -111,6 +121,17 @@ class DesktopPermissionService:
         if action.startswith("browser.") and not self.settings.BROWSER_ENABLED:
             logger.warning(f"Permission denied for '{action}': Browser automation is globally disabled.")
             raise DesktopPermissionDeniedError(action=action, reason="Browser automation subsystem is disabled in configuration.")
+
+        if action.startswith("voice.") and not getattr(self.settings, "VOICE_ENABLED", True):
+            logger.warning(f"Permission denied for '{action}': Voice interface is globally disabled.")
+            raise DesktopPermissionDeniedError(action=action, reason="Voice interface subsystem is disabled in configuration.")
+
+        if action.startswith("voice.capture.") and not getattr(self.settings, "VOICE_MICROPHONE_ENABLED", False):
+            logger.warning(f"Permission denied for '{action}': Microphone access is disabled by default.")
+            raise DesktopPermissionDeniedError(
+                action=action,
+                reason="Microphone hardware access is disabled. Enable VOICE_MICROPHONE_ENABLED=true in configuration to permit."
+            )
 
         # 4. Input automation specific check (Mouse & Keyboard)
         if action in {"desktop.input.mouse", "desktop.input.keyboard", "desktop.ui.activate"}:

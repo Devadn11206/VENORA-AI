@@ -315,3 +315,46 @@ class MemoryAccessDeniedError(MemoryError):
 class EmbeddingError(MemoryError):
     """Raised when generating embeddings fails or provider returns an error."""
     pass
+
+
+# =========================================================================
+# Phase 8: Voice Interface & Audio Exceptions
+# =========================================================================
+class VoiceError(VenoraError):
+    """Base exception for voice interface operations."""
+    pass
+
+
+class AudioValidationError(VoiceError):
+    """Raised when audio payload fails validation (size, duration, format, channels)."""
+    def __init__(self, reason: str, details: Optional[Any] = None) -> None:
+        super().__init__(f"Audio validation failed: {reason}", details=details)
+
+
+class AudioDeviceError(VoiceError):
+    """Raised when audio hardware/microphone is unavailable, missing, or access is blocked."""
+    def __init__(self, message: str = "Audio capture device unavailable or disabled.") -> None:
+        super().__init__(message)
+
+
+class VoiceSessionError(VoiceError):
+    """Raised when voice session lifecycle transition is invalid or session limit is reached."""
+    def __init__(self, message: str, session_id: Optional[str] = None) -> None:
+        super().__init__(message, details={"session_id": session_id} if session_id else None)
+        self.session_id = session_id
+
+
+class SpeechRecognitionError(VoiceError):
+    """Raised when speech-to-text transcription fails, times out, or provider is unavailable."""
+    def __init__(self, provider: str, reason: str) -> None:
+        super().__init__(f"Speech recognition error ({provider}): {reason}", details={"provider": provider, "reason": reason})
+        self.provider = provider
+        self.reason = reason
+
+
+class SpeechSynthesisError(VoiceError):
+    """Raised when text-to-speech synthesis fails, times out, or provider is unavailable."""
+    def __init__(self, provider: str, reason: str) -> None:
+        super().__init__(f"Speech synthesis error ({provider}): {reason}", details={"provider": provider, "reason": reason})
+        self.provider = provider
+        self.reason = reason
