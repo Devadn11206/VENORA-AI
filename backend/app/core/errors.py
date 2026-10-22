@@ -40,3 +40,58 @@ class InvalidTaskStateError(VenoraError):
         )
         self.current_status = current_status
         self.target_status = target_status
+
+
+# =========================================================================
+# Phase 2: Desktop Subsystem Exceptions
+# =========================================================================
+class DesktopPermissionDeniedError(VenoraError):
+    """Raised when an operation violates permission policies or allowlists."""
+    def __init__(self, action: str, reason: str) -> None:
+        super().__init__(f"Permission denied for '{action}': {reason}", details={"action": action, "reason": reason})
+        self.action = action
+        self.reason = reason
+
+
+class DesktopEmergencyStopActiveError(VenoraError):
+    """Raised when an automation action is requested while emergency stop is active."""
+    def __init__(self) -> None:
+        super().__init__("Desktop action blocked: Emergency stop is active.", details={"emergency_stop": True})
+
+
+class DesktopCapabilityUnavailableError(VenoraError):
+    """Raised when a requested capability is not supported or missing required libraries."""
+    def __init__(self, capability: str, reason: str) -> None:
+        super().__init__(f"Desktop capability '{capability}' unavailable: {reason}", details={"capability": capability, "reason": reason})
+        self.capability = capability
+        self.reason = reason
+
+
+class DesktopApplicationLaunchError(VenoraError):
+    """Raised when an authorized application fails to start or verify."""
+    def __init__(self, app_id: str, reason: str) -> None:
+        super().__init__(f"Failed to launch application '{app_id}': {reason}", details={"app_id": app_id, "reason": reason})
+        self.app_id = app_id
+        self.reason = reason
+
+
+class ProcessNotFoundError(VenoraError):
+    """Raised when inspecting a process that does not exist or has terminated."""
+    def __init__(self, pid: int) -> None:
+        super().__init__(f"Process with PID {pid} not found", details={"pid": pid})
+        self.pid = pid
+
+
+class ScreenshotNotFoundError(VenoraError):
+    """Raised when requested screenshot ID cannot be located on disk."""
+    def __init__(self, screenshot_id: str) -> None:
+        super().__init__(f"Screenshot '{screenshot_id}' not found", details={"screenshot_id": screenshot_id})
+        self.screenshot_id = screenshot_id
+
+
+class DesktopActionExecutionError(VenoraError):
+    """Raised when a desktop action execution fails or encounters invalid parameters."""
+    def __init__(self, action_type: str, reason: str) -> None:
+        super().__init__(f"Action '{action_type}' failed: {reason}", details={"action_type": action_type, "reason": reason})
+        self.action_type = action_type
+        self.reason = reason

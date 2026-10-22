@@ -3,7 +3,7 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Union
+from typing import Dict, List, Union
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     # Application Metadata
     APP_NAME: str = Field(default="VENORA AI", description="Application name")
-    APP_VERSION: str = Field(default="0.1.0", description="Application semantic version")
+    APP_VERSION: str = Field(default="0.2.0", description="Application semantic version")
     ENVIRONMENT: str = Field(default="development", description="Execution environment (development, testing, production)")
     DEBUG: bool = Field(default=False, description="Debug mode flag")
 
@@ -51,6 +51,59 @@ class Settings(BaseSettings):
         description="Conservative maximum request payload size in bytes"
     )
 
+    # =========================================================================
+    # Phase 2: Desktop Automation Configuration
+    # =========================================================================
+    DESKTOP_AUTOMATION_ENABLED: bool = Field(
+        default=True,
+        description="Master switch for desktop observation & automation subsystem"
+    )
+    DESKTOP_INPUT_AUTOMATION_ENABLED: bool = Field(
+        default=False,
+        description="Explicit gate for mouse and keyboard simulation (disabled by default for safety)"
+    )
+    DESKTOP_EMERGENCY_STOP_ACTIVE: bool = Field(
+        default=False,
+        description="Emergency stop flag: when active, all input actions are blocked"
+    )
+
+    # Approved Application Allowlist mapping app_id -> executable command/path
+    DESKTOP_APPROVED_APPLICATIONS: Dict[str, str] = Field(
+        default={
+            "notepad": "notepad.exe",
+            "calc": "calc.exe",
+            "explorer": "explorer.exe",
+            "cmd": "cmd.exe",
+        },
+        description="Whitelist of permitted application identifiers and their system executables"
+    )
+
+    # Screenshot storage & restrictions
+    SCREENSHOT_DIR: str = Field(
+        default="./data/screenshots",
+        description="Directory for local task-scoped desktop screenshots"
+    )
+    MAX_SCREENSHOT_BYTES: int = Field(
+        default=5 * 1024 * 1024,  # 5 MB
+        description="Maximum permissible screenshot file size"
+    )
+
+    # Bounded execution timeouts (seconds)
+    ACTION_TIMEOUT_SECONDS: float = Field(
+        default=10.0,
+        description="Default timeout limit for desktop actions in seconds"
+    )
+    LAUNCH_TIMEOUT_SECONDS: float = Field(
+        default=5.0,
+        description="Maximum seconds to wait for launched application process confirmation"
+    )
+
+    # Mouse & Keyboard safety bounds
+    MAX_TYPE_TEXT_LENGTH: int = Field(
+        default=250,
+        description="Maximum character length allowed per typed text action"
+    )
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
@@ -78,6 +131,13 @@ class Settings(BaseSettings):
     def resolved_log_dir(self) -> Path:
         """Return the absolute path of the log directory."""
         return Path(self.LOG_DIR).resolve()
+
+    @property
+    def resolved_screenshot_dir(self) -> Path:
+        """Return the absolute path of the screenshots directory."""
+        path = Path(self.SCREENSHOT_DIR).resolve()
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
     model_config = SettingsConfigDict(
         env_file=".env",

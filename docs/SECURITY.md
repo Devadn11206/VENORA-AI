@@ -1,11 +1,11 @@
-# VENORA AI — Security Baseline & Architecture (Phase 1)
+# VENORA AI — Security Baseline & Architecture (Phase 1 & Phase 2)
 
 > **IMPORTANT NOTICE**:  
-> Phase 1 of VENORA AI establishes an initial local security baseline. **It is designed strictly for local development on Windows 11 and is NOT ready for public or unauthenticated network deployment.**
+> VENORA AI establishes a strict local security baseline. **It is designed strictly for local execution on Windows 11 and is NOT ready for public or unauthenticated network deployment.**
 
 ---
 
-## 1. Current Security Controls (Phase 1 Implemented)
+## 1. Core Security Controls (Phase 1 & Phase 2 Implemented)
 
 1. **Localhost Binding by Default**:
    - The backend server defaults to binding exclusively to `127.0.0.1` (loopback).
@@ -23,7 +23,7 @@
 4. **Secrets & Environment Hygiene**:
    - Centralized configuration via `pydantic-settings` loads settings from environment variables and an optional `.env` file.
    - `.env`, `.pem`, `.key`, and database files are registered in `.gitignore` to prevent credential exposure.
-   - Phase 1 does not require any paid external API keys to start, test, or operate.
+   - Zero external API credentials required for local operation.
 
 5. **Conservative Request Limits**:
    - A dedicated ASGI request size limiting middleware intercepts requests and rejects bodies larger than `MAX_REQUEST_SIZE_BYTES` (default: 1 MB) with `HTTP 413 Payload Too Large` to mitigate memory exhaustion.
@@ -34,33 +34,56 @@
 
 ---
 
-## 2. Current Limitations & Assumptions
+## 2. Desktop Automation Security Controls (Phase 2 Additions)
 
-- **No Authentication / Authorization**: Phase 1 assumes that anyone with access to `http://127.0.0.1:8000` is the trusted local system owner. There are currently no user accounts, passwords, JWT tokens, or API keys guarding the HTTP endpoints.
-- **Unencrypted Transport (HTTP)**: Because communication is strictly local (`127.0.0.1`), TLS/HTTPS is not configured at this stage.
-- **Single Tenant**: The database schema and session tables do not yet segment multi-tenant users.
+Phase 2 introduces automated desktop interaction capabilities guarded by defense-in-depth safety boundaries:
+
+1. **Default-Deny Permission Service**:
+   - Every desktop action is validated by `DesktopPermissionService` before execution.
+   - Unrecognized action identifiers trigger `HTTP 403 Forbidden` (`PERMISSION_DENIED`).
+
+2. **Central Emergency Stop Circuit Breaker**:
+   - A global emergency stop switch (`POST /api/v1/desktop/emergency-stop?active=true`) halts and blocks all interactive mouse and keyboard actions immediately.
+   - Resetting the stop state requires an explicit local API call (`active=false`).
+
+3. **Input Automation Safety Lock**:
+   - Mouse and keyboard automation (`DESKTOP_INPUT_AUTOMATION_ENABLED`) is **disabled by default (`false`)** in configuration.
+   - Even if requested via the API, mouse movements, clicks, typing, and keypresses are rejected until the developer explicitly toggles the configuration switch.
+
+4. **Application Launch Allowlist**:
+   - Applications can only be launched via approved application identifiers (`notepad`, `calc`, `explorer`, `cmd`).
+   - Arbitrary paths, PowerShell scripts, `.bat` files, or shell strings are rejected.
+   - Executable launching is performed via `subprocess.Popen(args, shell=False)` with argument sanitization against shell control characters (`&`, `|`, `;`, `>`, etc.).
+
+5. **Keyboard & Text Restrictions**:
+   - Keys can only be pressed if present in the explicit keyboard allowlist (`ALLOWED_KEYS`).
+   - Text typing is bounded to `MAX_TYPE_TEXT_LENGTH` (default: 250 characters).
+
+6. **PyAutoGUI FailSafe**:
+   - Fail-safe mode is permanently enabled (`pyautogui.FAILSAFE = True`). Slamming the mouse pointer into any screen corner immediately halts automation.
+
+7. **Task-Scoped Screenshot Privacy**:
+   - Screenshots are saved using unguessable tokens (`snap_<timestamp>_<hex16>.png`) in `data/screenshots/`.
+   - Access to screenshots enforces strict directory containment validation to eliminate path traversal attacks (`../`).
+   - Screenshot files are never uploaded to third-party endpoints.
+
+8. **Read-Only Process Inspection**:
+   - Process inspection via `psutil` sanitizes output: command lines, environment variables, authentication tokens, and credentials are omitted.
 
 ---
 
-## 3. Risks Before Remote Access (Telegram / External Web)
+## 3. Current Limitations & Assumptions
 
-Before enabling remote access (such as a Telegram Bot, web tunnel, or mobile dashboard), the following risks MUST be mitigated:
-
-1. **Unauthorized Command Execution**: An exposed local port without authentication could allow unauthorized parties on the local network to trigger tasks.
-2. **Eavesdropping on Local Network**: If bound to non-loopback addresses (`0.0.0.0`), unencrypted traffic could expose task data to neighboring devices.
-3. **Session Hijacking**: Without cryptographic tokens (e.g., HMAC-signed tokens or OAuth2/JWT), requests cannot be validated as originating from the authorized user.
+- **Local Machine Boundary**: Assumes that anyone with access to `http://127.0.0.1:8000` is the authorized owner of the machine.
+- **Unencrypted Transport**: Communication is local HTTP over loopback.
+- **No Multi-Tenancy**: The desktop environment belongs to the logged-in OS user.
 
 ---
 
 ## 4. Planned Security Milestones for Future Phases
 
-### Authentication & Authorization
-- **API Token Authentication**: Bearer token authentication required on all non-public endpoints.
-- **Telegram Bot User Allowlist**: Strict Telegram user ID whitelist so only the owner can issue commands to the agent.
-- **Role-Based Access**: Separation of read-only observation roles and administrative execution roles.
-
 ### Tool Permission Architecture (Independent of AI Prompts)
 A fundamental tenet of VENORA AI is that **AI reasoning models must never be the sole arbiters of security**:
-- Future desktop automation tools (mouse control, keyboard typing, file system manipulation, shell command execution) will feature **deterministic OS-level policy gates**.
+- Future desktop automation tools will feature **deterministic OS-level policy gates**.
 - An AI prompt or LLM output requesting a sensitive action (e.g., deleting files, executing system commands, accessing credential vaults) will trigger an explicit interactive approval prompt (`awaiting_approval` status) or be blocked by a hardcoded sandbox policy.
-- System tool permissions will be enforced in Python backend code independently of what the LLM hallucinates or suggests.
+- System tool permissions are enforced in Python backend code independently of what the LLM hallucinates or suggests.

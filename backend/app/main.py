@@ -8,10 +8,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.api.routes.desktop import router as desktop_router
 from app.api.routes.health import router as health_router
 from app.api.routes.tasks import router as tasks_router
 from app.core.config import Settings, get_settings
-from app.core.errors import InvalidTaskStateError, TaskNotFoundError, VenoraError
+from app.core.errors import (
+    DesktopApplicationLaunchError,
+    DesktopCapabilityUnavailableError,
+    DesktopEmergencyStopActiveError,
+    DesktopPermissionDeniedError,
+    InvalidTaskStateError,
+    ProcessNotFoundError,
+    ScreenshotNotFoundError,
+    TaskNotFoundError,
+    VenoraError,
+)
 from app.core.logging import get_logger, setup_logging
 from app.database.init_db import init_db
 
@@ -88,11 +99,53 @@ def create_app() -> FastAPI:
             content={"detail": exc.message, "error_type": "not_found", "details": exc.details}
         )
 
+    @application.exception_handler(ProcessNotFoundError)
+    async def process_not_found_handler(request: Request, exc: ProcessNotFoundError):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": exc.message, "error_type": "process_not_found", "details": exc.details}
+        )
+
+    @application.exception_handler(ScreenshotNotFoundError)
+    async def screenshot_not_found_handler(request: Request, exc: ScreenshotNotFoundError):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": exc.message, "error_type": "screenshot_not_found", "details": exc.details}
+        )
+
     @application.exception_handler(InvalidTaskStateError)
     async def invalid_task_state_handler(request: Request, exc: InvalidTaskStateError):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"detail": exc.message, "error_type": "invalid_state", "details": exc.details}
+        )
+
+    @application.exception_handler(DesktopPermissionDeniedError)
+    async def desktop_permission_denied_handler(request: Request, exc: DesktopPermissionDeniedError):
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"detail": exc.message, "error_type": "permission_denied", "details": exc.details}
+        )
+
+    @application.exception_handler(DesktopEmergencyStopActiveError)
+    async def desktop_emergency_stop_handler(request: Request, exc: DesktopEmergencyStopActiveError):
+        return JSONResponse(
+            status_code=status.HTTP_423_LOCKED,
+            content={"detail": exc.message, "error_type": "emergency_stop_active", "details": exc.details}
+        )
+
+    @application.exception_handler(DesktopCapabilityUnavailableError)
+    async def desktop_capability_unavailable_handler(request: Request, exc: DesktopCapabilityUnavailableError):
+        return JSONResponse(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            content={"detail": exc.message, "error_type": "capability_unavailable", "details": exc.details}
+        )
+
+    @application.exception_handler(DesktopApplicationLaunchError)
+    async def desktop_application_launch_handler(request: Request, exc: DesktopApplicationLaunchError):
+        return JSONResponse(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            content={"detail": exc.message, "error_type": "application_launch_failed", "details": exc.details}
         )
 
     @application.exception_handler(RequestValidationError)
@@ -114,6 +167,7 @@ def create_app() -> FastAPI:
     # Include Versioned Routers
     application.include_router(health_router, prefix=settings.API_V1_PREFIX)
     application.include_router(tasks_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(desktop_router, prefix=settings.API_V1_PREFIX)
 
     return application
 

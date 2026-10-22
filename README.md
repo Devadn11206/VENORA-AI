@@ -3,20 +3,22 @@
 > **Virtual Environment for Neural Operations, Reasoning & Assistance**  
 > *Think. Execute. Evolve.*
 
-VENORA AI is a modular, locally executable, personal AI agent designed for Windows 11. Built with privacy, security, and extensibility at its core, VENORA aims to provide autonomous desktop assistance, AI reasoning, voice interaction, and remote access.
+VENORA AI is a modular, locally executable, personal AI agent designed for Windows 11. Built with privacy, security, and extensibility at its core, VENORA provides autonomous desktop assistance, AI reasoning, voice interaction, and remote access.
 
 ---
 
-## Current Status: Phase 1 (Foundation Complete)
+## Current Status: Phase 2 (Desktop Observation, Control & Verification Complete)
 
-Phase 1 establishes the production-grade backend foundation:
+Phase 2 builds upon the Phase 1 backend foundation by introducing a fully tested, safe Windows desktop automation subsystem:
 - **FastAPI Core**: Asynchronous application with versioned REST API (`/api/v1`).
-- **Pydantic Settings**: Centralized configuration with environment variable support.
-- **SQLAlchemy 2.x**: Relational database persistence using SQLite with strict foreign keys.
-- **Structured Logging**: Rotating file handler (`logs/venora.log`) and console output.
-- **Task Lifecycle Management**: Validated state machine for task creation, query, update, and cancellation.
-- **Initial Security**: Localhost binding, CORS restrictions, size limiting, and sanitized error responses.
-- **Comprehensive Testing**: 100% passing automated test suite (Pytest).
+- **Desktop Capability Detection**: Truthful probing of Windows OS, interactive display station, and automation dependencies.
+- **Safe Application Launching**: Subprocess-based application execution restricted to an explicit allowlist (`notepad`, `calc`, `explorer`, `cmd`).
+- **Read-Only Process Inspection**: Sanitized process listing and inspection via `psutil` without exposing credentials or command lines.
+- **Task-Scoped Screenshots**: Local screenshot capture via `Pillow` with unguessable tokens and path traversal protections.
+- **Controlled Mouse & Keyboard Automation**: Bounded coordinate movements, text typing, and keypresses guarded by `pyautogui.FAILSAFE`.
+- **Permission & Safety System**: Default-deny architecture, emergency stop switch, and input automation disabled by default.
+- **Empirical Outcome Verification**: Validates execution results (process alive, image file integrity) rather than assuming success.
+- **Comprehensive Testing**: 38 out of 38 automated tests passing in Pytest.
 
 ---
 
@@ -26,21 +28,29 @@ Phase 1 establishes the production-grade backend foundation:
 VENORA AI
 ├── backend/
 │   ├── app/
-│   │   ├── api/routes/      # REST API endpoints (health, tasks)
+│   │   ├── api/routes/      # REST API endpoints (health, tasks, desktop)
 │   │   ├── core/            # Config, structured logging, errors
 │   │   ├── database/        # Engine, sessionmaker, schema init
+│   │   ├── desktop/         # Capability, launcher, processes, screenshots, mouse/keyboard, service
 │   │   ├── models/          # SQLAlchemy models (Task, Session, ExecutionLog)
 │   │   ├── schemas/         # Pydantic validation schemas
-│   │   ├── services/        # Business logic & state transitions
+│   │   ├── services/        # Task service & business logic
 │   │   └── main.py          # FastAPI application factory & lifespan
-│   └── tests/               # Pytest automated test suite
-├── data/                    # Local SQLite database (venora.db)
-├── logs/                    # Rotating log files (venora.log)
-├── docs/                    # Architecture and Security specifications
-└── scripts/                 # PowerShell launcher scripts
+│   └── tests/               # Pytest automated test suite (38 tests)
+├── data/
+│   ├── screenshots/         # Local task-scoped screenshots
+│   └── venora.db            # Local SQLite database
+├── logs/
+│   └── venora.log           # Rotating application log file
+├── docs/
+│   ├── ARCHITECTURE.md      # System design & extension points
+│   ├── DESKTOP_AUTOMATION.md# Phase 2 desktop subsystem documentation
+│   └── SECURITY.md          # Security baseline & desktop boundaries
+└── scripts/
+    └── run_backend.ps1      # PowerShell launcher script
 ```
 
-For complete details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SECURITY.md](docs/SECURITY.md).
+For complete details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESKTOP_AUTOMATION.md](docs/DESKTOP_AUTOMATION.md), and [docs/SECURITY.md](docs/SECURITY.md).
 
 ---
 
@@ -73,16 +83,9 @@ pip install -r backend\requirements.txt
 ```
 
 ### 4. Configure Environment (Optional)
-The backend comes pre-configured with safe local defaults. If you wish to customize configuration:
+The backend comes pre-configured with safe local defaults (input automation is disabled by default for safety).
 ```powershell
 Copy-Item .env.example .env
-```
-
-### 5. Initialize the Database
-The database tables are created automatically on application startup, or you can run:
-```powershell
-$env:PYTHONPATH = "backend"
-python -m app.database.init_db
 ```
 
 ---
@@ -106,64 +109,45 @@ $env:PYTHONPATH = "backend"
 
 Once running, access the following endpoints:
 
-| Endpoint | Method | Purpose | Example Response |
-| :--- | :--- | :--- | :--- |
-| `http://127.0.0.1:8000/api/v1/health` | GET | Liveness probe | `{"status":"ok","app_name":"VENORA AI","version":"0.1.0"}` |
-| `http://127.0.0.1:8000/api/v1/health/ready` | GET | Database readiness | `{"status":"ready","database":"connected"}` |
-| `http://127.0.0.1:8000/api/v1/tasks` | GET | List tasks (paginated) | `{"items":[],"total":0,"page":1,"page_size":20}` |
-| `http://127.0.0.1:8000/api/v1/tasks` | POST | Create task | `{"id":1,"title":"...","status":"pending"}` |
-| `http://127.0.0.1:8000/docs` | GET | Interactive Swagger Docs | Interactive OpenAPI UI |
-| `http://127.0.0.1:8000/redoc` | GET | ReDoc Documentation | Human-readable API specs |
+| Endpoint | Method | Purpose |
+| :--- | :--- | :--- |
+| `http://127.0.0.1:8000/api/v1/health` | GET | Liveness probe |
+| `http://127.0.0.1:8000/api/v1/health/ready` | GET | Database readiness |
+| `http://127.0.0.1:8000/api/v1/tasks` | GET/POST | List and create tasks |
+| `http://127.0.0.1:8000/api/v1/desktop/capabilities` | GET | Report OS & automation capabilities |
+| `http://127.0.0.1:8000/api/v1/desktop/applications` | GET | List approved whitelisted applications |
+| `http://127.0.0.1:8000/api/v1/desktop/applications/{app_id}/launch` | POST | Launch approved application |
+| `http://127.0.0.1:8000/api/v1/desktop/processes` | GET | List running processes |
+| `http://127.0.0.1:8000/api/v1/desktop/screenshots` | POST | Capture task-scoped screenshot |
+| `http://127.0.0.1:8000/api/v1/desktop/screenshots/{id}` | GET | Retrieve screenshot PNG file |
+| `http://127.0.0.1:8000/api/v1/desktop/actions` | POST | Dispatch structured verified desktop action |
+| `http://127.0.0.1:8000/api/v1/desktop/emergency-stop` | POST | Toggle emergency stop switch |
+| `http://127.0.0.1:8000/docs` | GET | Interactive Swagger UI |
+| `http://127.0.0.1:8000/redoc` | GET | ReDoc Documentation |
 
 ---
 
 ## Running Automated Tests
 
-Run the full Pytest suite using the isolated in-memory database:
+Run the full Pytest suite covering Phase 1 and Phase 2:
 ```powershell
 $env:PYTHONPATH = "backend"
 .\.venv\Scripts\python.exe -m pytest -v backend/tests
 ```
 
-All 22 unit and integration tests will execute and report results.
-
----
-
-## Database Backup and Restore
-
-- **Database Location**: `data/venora.db`
-- **Backup**:
-  ```powershell
-  Copy-Item data\venora.db data\venora_backup.db
-  ```
-- **Restore**:
-  ```powershell
-  Copy-Item data\venora_backup.db data\venora.db
-  ```
-
----
-
-## Troubleshooting
-
-1. **PowerShell Script Execution Policy Error**:
-   Run: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
-2. **ModuleNotFoundError: No module named 'app'**:
-   Ensure `backend` is in your `PYTHONPATH` or run uvicorn with `--app-dir backend`.
-3. **Database locked error**:
-   SQLite is configured with `check_same_thread=False` and handles concurrent reads. If writing under high load in future phases, migration to PostgreSQL will be enabled via `DATABASE_URL`.
+All 38 unit and integration tests execute cleanly with 100% pass rate.
 
 ---
 
 ## Current Limitations & Roadmap
 
-### Phase 1 Limitations
-- No external AI reasoning (no LLM calls yet).
-- Localhost only (no remote authentication yet).
-- Manual task execution only (autonomous background runner scheduled for Phase 2).
+### Phase 2 Limitations
+- Autonomous planning has not yet been introduced (planned for **Phase 3** with OpenRouter).
+- Input automation requires explicit enablement in local config (`DESKTOP_INPUT_AUTOMATION_ENABLED=true`).
+- Locked sessions or headless VMs cannot capture GDI screen buffers.
 
 ### Future Roadmap
-- **Phase 2**: Windows Desktop Observation & Automation (pyautogui / pywinauto with permission gates).
-- **Phase 3**: AI Reasoning Engine (OpenRouter API integration).
+- **Phase 3**: AI Reasoning Engine (OpenRouter API integration & tool calling).
 - **Phase 4**: Real-time Voice Interaction (Sarvam AI STT & TTS).
 - **Phase 5**: Telegram Remote Control Bot.
 - **Phase 6**: Web Dashboard (React + TypeScript).
