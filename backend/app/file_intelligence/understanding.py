@@ -98,7 +98,7 @@ Output format: Provide a clear, factual summary highlighting main themes, key da
             ChatMessage(role=MessageRole.USER, content=user_prompt),
         ]
         try:
-            response = await self.provider.generate_response(messages=messages, temperature=0.1)
+            response = await self.provider.generate_response(messages=messages)
             return DocumentSummaryResponse(
                 document_id=doc.id,
                 filename=doc.filename,
@@ -178,7 +178,7 @@ State clearly if the evidence is insufficient. Cite page numbers or sections whe
             ChatMessage(role=MessageRole.USER, content=user_prompt),
         ]
         try:
-            response = await self.provider.generate_response(messages=messages, temperature=0.1)
+            response = await self.provider.generate_response(messages=messages)
             raw_text = response.content.strip()
             insufficient = (
                 "insufficient" in raw_text.lower()
@@ -264,7 +264,7 @@ Output as JSON with keys 'similarities' (list of strings) and 'differences' (lis
             ChatMessage(role=MessageRole.USER, content=user_prompt),
         ]
         try:
-            resp = await self.provider.generate_response(messages=messages, temperature=0.1)
+            resp = await self.provider.generate_response(messages=messages)
             raw = resp.content.strip()
             # Clean markdown JSON block
             if "```json" in raw:
