@@ -1,11 +1,11 @@
 # ==============================================================================
-# VENORA AI — Backend Development Server Launcher (Windows PowerShell)
+# VENORA AI - Backend Development Server Launcher (Windows PowerShell)
 # ==============================================================================
 [CmdletBinding()]
 param (
     [string]$HostAddress = "127.0.0.1",
     [int]$Port = 8000,
-    [switch]$Reload = $true
+    [bool]$Reload = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +16,7 @@ $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..")
 $BackendDir = Join-Path $ProjectRoot "backend"
 
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "                VENORA AI — Phase 1 Backend                 " -ForegroundColor Cyan
+Write-Host "                VENORA AI - Phase 1 Backend                 " -ForegroundColor Cyan
 Write-Host "       Think. Execute. Evolve. | Local Development Server   " -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "[INFO] Project root: $ProjectRoot"
@@ -45,9 +45,11 @@ if (Test-Path $VenvPython) {
 
 # 3. Verify core dependencies are installed
 Write-Host "[INFO] Verifying backend dependencies..."
-$VerifyCommand = "$PythonExe -c ""import fastapi, uvicorn, sqlalchemy, pydantic, pydantic_settings; print('Dependencies OK')"""
 try {
-    $VerifyOutput = Invoke-Expression $VerifyCommand
+    $VerifyOutput = & $PythonExe -c "import fastapi, uvicorn, sqlalchemy, pydantic, pydantic_settings; print('Dependencies OK')"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Dependency check exited with code $LASTEXITCODE"
+    }
     Write-Host "[INFO] $VerifyOutput" -ForegroundColor Green
 } catch {
     Write-Host "[ERROR] Missing required dependencies!" -ForegroundColor Red
@@ -68,8 +70,8 @@ if (-not (Test-Path $LogsDir)) {
 }
 
 # 5. Launch uvicorn from backend directory
-Write-Host "[INFO] Starting server on http://$HostAddress:$Port (Reload: $Reload)..." -ForegroundColor Cyan
-Write-Host "[INFO] OpenAPI documentation will be available at http://$HostAddress:$Port/docs"
+Write-Host "[INFO] Starting server on http://${HostAddress}:${Port} (Reload: $Reload)..." -ForegroundColor Cyan
+Write-Host "[INFO] OpenAPI documentation will be available at http://${HostAddress}:${Port}/docs"
 Write-Host "[INFO] Press Ctrl+C to terminate."
 Write-Host "------------------------------------------------------------"
 
