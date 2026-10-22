@@ -3,7 +3,7 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     # Application Metadata
     APP_NAME: str = Field(default="VENORA AI", description="Application name")
-    APP_VERSION: str = Field(default="0.2.0", description="Application semantic version")
+    APP_VERSION: str = Field(default="0.3.0", description="Application semantic version")
     ENVIRONMENT: str = Field(default="development", description="Execution environment (development, testing, production)")
     DEBUG: bool = Field(default=False, description="Debug mode flag")
 
@@ -102,6 +102,38 @@ class Settings(BaseSettings):
     MAX_TYPE_TEXT_LENGTH: int = Field(
         default=250,
         description="Maximum character length allowed per typed text action"
+    )
+
+    # =========================================================================
+    # Phase 3: AI Reasoning & Tool Calling Configuration
+    # =========================================================================
+    OPENROUTER_API_KEY: Optional[str] = Field(
+        default=None,
+        description="OpenRouter API key for remote LLM inference (never hardcode in code or git)"
+    )
+    VENORA_AI_MODEL: str = Field(
+        default="anthropic/claude-3.5-sonnet",
+        description="Configured AI reasoning model"
+    )
+    VENORA_AI_BASE_URL: str = Field(
+        default="https://openrouter.ai/api/v1",
+        description="OpenRouter API endpoint base URL"
+    )
+    VENORA_AI_TIMEOUT_SECONDS: float = Field(
+        default=60.0,
+        description="Timeout for AI provider inference calls"
+    )
+    VENORA_AI_MAX_RETRIES: int = Field(
+        default=2,
+        description="Maximum retry attempts on transient network/provider errors"
+    )
+    MAX_TOOL_CALL_ROUNDS: int = Field(
+        default=3,
+        description="Maximum sequential tool-calling rounds per user turn to prevent infinite loops"
+    )
+    MAX_USER_MESSAGE_CHARS: int = Field(
+        default=4000,
+        description="Maximum permitted character length for user input messages"
     )
 
     @field_validator("CORS_ORIGINS", mode="before")

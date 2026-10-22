@@ -95,3 +95,59 @@ class DesktopActionExecutionError(VenoraError):
         super().__init__(f"Action '{action_type}' failed: {reason}", details={"action_type": action_type, "reason": reason})
         self.action_type = action_type
         self.reason = reason
+
+
+# =========================================================================
+# Phase 3: AI Provider & Tool Calling Exceptions
+# =========================================================================
+class AIProviderError(VenoraError):
+    """Base exception for AI provider communication issues."""
+    pass
+
+
+class AIAuthenticationError(AIProviderError):
+    """Raised when the AI provider authentication fails or API key is invalid."""
+    pass
+
+
+class AIRateLimitError(AIProviderError):
+    """Raised when the AI provider returns a rate limit response (429)."""
+    pass
+
+
+class AITimeoutError(AIProviderError):
+    """Raised when an AI provider inference request times out."""
+    pass
+
+
+class AIMalformedResponseError(AIProviderError):
+    """Raised when the AI provider returns an unparseable or unexpected response."""
+    pass
+
+
+class ToolValidationError(VenoraError):
+    """Raised when proposed tool arguments fail validation schemas."""
+    def __init__(self, tool_name: str, reason: str) -> None:
+        super().__init__(f"Tool '{tool_name}' argument validation failed: {reason}", details={"tool_name": tool_name, "reason": reason})
+        self.tool_name = tool_name
+        self.reason = reason
+
+
+class ToolNotFoundError(VenoraError):
+    """Raised when an unapproved or unregistered tool name is requested."""
+    def __init__(self, tool_name: str) -> None:
+        super().__init__(f"Tool '{tool_name}' is not recognized or registered in the controlled tool registry.", details={"tool_name": tool_name})
+        self.tool_name = tool_name
+
+
+class MaxToolRoundsExceededError(VenoraError):
+    """Raised when reasoning tool-call sequence exceeds safety bounds."""
+    def __init__(self, max_rounds: int) -> None:
+        super().__init__(f"Maximum tool-call rounds ({max_rounds}) exceeded for single user request.", details={"max_rounds": max_rounds})
+        self.max_rounds = max_rounds
+
+
+class ValidationError(VenoraError):
+    """Raised when request payload or input parameter fails semantic validation."""
+    pass
+

@@ -7,18 +7,17 @@ VENORA AI is a modular, locally executable, personal AI agent designed for Windo
 
 ---
 
-## Current Status: Phase 2 (Desktop Observation, Control & Verification Complete)
+## Current Status: Phase 3 (AI Reasoning & Structured Tool Calling Complete)
 
-Phase 2 builds upon the Phase 1 backend foundation by introducing a fully tested, safe Windows desktop automation subsystem:
+Phase 3 builds upon Phase 1 & Phase 2 by establishing the AI Reasoning Subsystem and controlled tool orchestration:
 - **FastAPI Core**: Asynchronous application with versioned REST API (`/api/v1`).
-- **Desktop Capability Detection**: Truthful probing of Windows OS, interactive display station, and automation dependencies.
-- **Safe Application Launching**: Subprocess-based application execution restricted to an explicit allowlist (`notepad`, `calc`, `explorer`, `cmd`).
-- **Read-Only Process Inspection**: Sanitized process listing and inspection via `psutil` without exposing credentials or command lines.
-- **Task-Scoped Screenshots**: Local screenshot capture via `Pillow` with unguessable tokens and path traversal protections.
-- **Controlled Mouse & Keyboard Automation**: Bounded coordinate movements, text typing, and keypresses guarded by `pyautogui.FAILSAFE`.
-- **Permission & Safety System**: Default-deny architecture, emergency stop switch, and input automation disabled by default.
-- **Empirical Outcome Verification**: Validates execution results (process alive, image file integrity) rather than assuming success.
-- **Comprehensive Testing**: 38 out of 38 automated tests passing in Pytest.
+- **AI Provider Abstraction**: Modular `BaseAIProvider` and `OpenRouterProvider` with graceful offline fallback and zero credential leaks.
+- **Controlled Tool Registry**: Strict validation of tool names and Pydantic arguments with automatic rejection of unknown commands.
+- **Integrated Phase 2 Desktop Tools**: Approved tools for `list_applications`, `launch_application`, `inspect_processes`, `capture_screenshot`, and `desktop_capabilities`.
+- **Reasoning Service**: Multi-round conversational tool calling engine with strict iteration bounds (`MAX_TOOL_CALL_ROUNDS=3`).
+- **Defense-in-Depth Security**: Prompt injection resistance, default-deny permission checks, and untrusted tool output sanitization.
+- **Assistant API Endpoints**: `POST /api/v1/assistant/chat` and `GET /api/v1/assistant/status`.
+- **Comprehensive Testing**: 60 out of 60 automated tests passing across Phase 1, Phase 2, and Phase 3.
 
 ---
 
@@ -28,15 +27,24 @@ Phase 2 builds upon the Phase 1 backend foundation by introducing a fully tested
 VENORA AI
 ├── backend/
 │   ├── app/
-│   │   ├── api/routes/      # REST API endpoints (health, tasks, desktop)
-│   │   ├── core/            # Config, structured logging, errors
+│   │   ├── ai/              # AI provider, OpenRouter, prompts, schemas, reasoning, tool registry
+│   │   │   ├── tools/       # BaseTool, ToolRegistry, desktop tool adapters
+│   │   │   ├── conversation.py # Bounded conversation context manager
+│   │   │   ├── openrouter_provider.py # OpenRouter API client
+│   │   │   ├── prompts.py   # Versioned system instructions
+│   │   │   ├── provider.py  # BaseAIProvider abstract interface
+│   │   │   ├── reasoning_service.py # Multi-round reasoning loop coordinator
+│   │   │   └── schemas.py   # Pydantic schemas for messages, tools, responses
+│   │   ├── api/routes/      # REST API endpoints (health, tasks, desktop, assistant)
+│   │   ├── core/            # Config, structured logging, typed errors
 │   │   ├── database/        # Engine, sessionmaker, schema init
 │   │   ├── desktop/         # Capability, launcher, processes, screenshots, mouse/keyboard, service
 │   │   ├── models/          # SQLAlchemy models (Task, Session, ExecutionLog)
 │   │   ├── schemas/         # Pydantic validation schemas
 │   │   ├── services/        # Task service & business logic
 │   │   └── main.py          # FastAPI application factory & lifespan
-│   └── tests/               # Pytest automated test suite (38 tests)
+│   └── tests/               # Pytest automated test suite (60 tests)
+
 ├── data/
 │   ├── screenshots/         # Local task-scoped screenshots
 │   └── venora.db            # Local SQLite database
