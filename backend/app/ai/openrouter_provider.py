@@ -88,9 +88,11 @@ class OpenRouterProvider(BaseAIProvider):
         payload: Dict[str, Any] = {
             "model": self.model,
             "messages": api_messages,
+            "max_tokens": 1000,
         }
         if tools:
             payload["tools"] = tools
+
 
         endpoint = f"{self.base_url}/chat/completions"
         logger.info(f"Dispatching AI request to OpenRouter model='{self.model}' (messages={len(api_messages)}, tools={len(tools) if tools else 0})")

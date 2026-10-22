@@ -130,10 +130,11 @@ class LaunchApplicationTool(BaseTool):
                     "pid": launch_res.pid,
                     "status": launch_res.status.value,
                     "message": launch_res.message,
-                    "verified": launch_res.verified,
+                    "verification_status": launch_res.verification_status.value,
                 },
-                verification_status=VerificationStatus.VERIFIED if launch_res.verified else VerificationStatus.UNVERIFIED,
+                verification_status=launch_res.verification_status,
             )
+
         except DesktopPermissionDeniedError as perm_err:
             return ToolResult(
                 call_id=call_id,
