@@ -16,12 +16,23 @@ from app.ai.tools.desktop_tools import (
 )
 
 
+from app.ai.tools.document_tools import (
+    AskDocumentQuestionTool,
+    CompareDocumentsTool,
+    ExtractDocumentTextTool,
+    ListAuthorizedDocumentsTool,
+    SearchDocumentsTool,
+    SummarizeDocumentTool,
+)
+from app.file_intelligence.service import DocumentIntelligenceService
+
+
 def create_default_tool_registry(
     desktop_service: Optional[DesktopService] = None,
     settings: Optional[Settings] = None,
     db: Optional[Session] = None,
 ) -> ToolRegistry:
-    """Instantiate and populate the standard VENORA AI tool registry with approved desktop capabilities."""
+    """Instantiate and populate the standard VENORA AI tool registry with approved desktop and document capabilities."""
     cfg = settings or get_settings()
     svc = desktop_service or DesktopService(db=db, settings=cfg)
     registry = ToolRegistry(permission_service=svc.permissions)
@@ -32,5 +43,15 @@ def create_default_tool_registry(
     registry.register(InspectProcessesTool(svc))
     registry.register(CaptureScreenshotTool(svc))
     registry.register(DesktopCapabilitiesTool(svc))
+
+    # Register approved Phase 5 document intelligence tools
+    if db is not None:
+        doc_svc = DocumentIntelligenceService(db=db, settings=cfg)
+        registry.register(ListAuthorizedDocumentsTool(doc_svc))
+        registry.register(ExtractDocumentTextTool(doc_svc))
+        registry.register(SearchDocumentsTool(doc_svc))
+        registry.register(SummarizeDocumentTool(doc_svc))
+        registry.register(AskDocumentQuestionTool(doc_svc))
+        registry.register(CompareDocumentsTool(doc_svc))
 
     return registry

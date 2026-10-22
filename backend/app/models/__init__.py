@@ -3,6 +3,12 @@ from app.models.task import Task, TaskStatus, TaskPriority
 from app.models.task_step import TaskStep, StepStatus
 from app.models.session import Session, SessionType, SessionStatus
 from app.models.execution_log import ExecutionLog, LogLevel
+from app.models.document import (
+    Document,
+    AuthorizedDirectory,
+    DocumentChunk,
+    DocumentProcessingStatus,
+)
 
 __all__ = [
     "Base",
@@ -16,5 +22,9 @@ __all__ = [
     "SessionStatus",
     "ExecutionLog",
     "LogLevel",
+    "Document",
+    "AuthorizedDirectory",
+    "DocumentChunk",
+    "DocumentProcessingStatus",
 ]
 

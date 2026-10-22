@@ -30,6 +30,14 @@ class DesktopPermissionService:
         "desktop.input.mouse",
         "desktop.input.keyboard",
         "desktop.emergency_stop.toggle",
+        # Phase 5: Document Intelligence Permissions
+        "document.read",
+        "document.search",
+        "document.extract",
+        "document.summarize",
+        "document.compare",
+        "document.index",
+        "document.export",
     }
 
     # Approved standard keyboard keys allowlist
@@ -76,8 +84,8 @@ class DesktopPermissionService:
             logger.warning(f"Action '{action}' blocked by active Emergency Stop.")
             raise DesktopEmergencyStopActiveError()
 
-        # 3. Master desktop automation switch
-        if not self.settings.DESKTOP_AUTOMATION_ENABLED:
+        # 3. Master desktop automation switch (only applies to desktop.* actions, not document.* actions)
+        if action.startswith("desktop.") and not self.settings.DESKTOP_AUTOMATION_ENABLED:
             logger.warning(f"Permission denied for '{action}': Desktop automation is globally disabled.")
             raise DesktopPermissionDeniedError(action=action, reason="Desktop automation subsystem is disabled in configuration.")
 

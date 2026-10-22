@@ -7,9 +7,9 @@ VENORA AI is a modular, locally executable, personal AI agent designed for Windo
 
 ---
 
-## Current Status: Phase 4 (Task Orchestration & Execution Management Complete)
+## Current Status: Phase 5 (File Intelligence & Document Understanding Complete)
 
-Phase 4 builds upon Phase 1, Phase 2, and Phase 3 by establishing the Task Orchestration Subsystem:
+Phase 5 builds upon Phases 1 through 4 by establishing the File Intelligence & Document Understanding Subsystem:
 - **FastAPI Core**: Asynchronous application with versioned REST API (`/api/v1`).
 - **AI Provider Abstraction**: Modular `BaseAIProvider` and `OpenRouterProvider` with graceful offline fallback and zero credential leaks.
 - **Controlled Tool Registry**: Strict validation of tool names and Pydantic arguments with automatic rejection of unknown commands.
@@ -19,8 +19,12 @@ Phase 4 builds upon Phase 1, Phase 2, and Phase 3 by establishing the Task Orche
 - **Finite State Machines**: Validated lifecycle transitions for Tasks and Steps with fail-fast cascading error policies.
 - **Sequential Execution Engine**: Safely executes approved steps through the Tool Registry, enforcing permissions, timeouts, and emergency stops.
 - **Persistence & Crash Recovery**: `TaskRecoveryManager` reconciles interrupted tasks on restart; append-only audit event logging in `ExecutionLog`.
-- **Orchestration REST Endpoints**: `/api/v1/tasks` for creating, listing, starting, cancelling, approving, and auditing tasks.
-- **Comprehensive Testing**: 79 out of 79 automated tests passing across Phases 1, 2, 3, and 4.
+- **Security-First File Intelligence**: Strict path containment and directory allowlisting (`ALLOWED_DOCUMENT_DIRS`), rejecting path traversal and symlink escapes.
+- **Multi-Format Document Extraction**: Normalized structural text extraction from TXT, Markdown, PDF, DOCX, CSV, XLSX, and JSON with page and section preservation.
+- **Local Indexing & FTS Search**: SQLite FTS5 full-text lexical search with BM25 ranking and standard SQL fallback.
+- **Grounded AI Understanding**: Document summarization, retrieval-augmented Q&A with verifiable page/section citations, document comparison, and safe export.
+- **Document REST Endpoints**: `/api/v1/documents` for directory authorization, scanning, text extraction, search, summarization, Q&A, and comparisons.
+- **Comprehensive Testing**: 101 out of 101 automated tests passing across Phases 1, 2, 3, 4, and 5.
 
 ---
 

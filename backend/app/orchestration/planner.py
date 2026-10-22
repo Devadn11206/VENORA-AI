@@ -225,6 +225,35 @@ class TaskPlanner:
                     )
                 )
                 seq += 1
+        elif "document" in goal_lower or "files" in goal_lower or "search" in goal_lower:
+            if "search" in goal_lower:
+                steps.append(
+                    StepPlan(
+                        step_id="step_search_documents",
+                        sequence_number=1,
+                        description="Search indexed documents",
+                        action_type="tool_call",
+                        tool_name="search_documents",
+                        arguments={"query": user_goal},
+                        dependencies=[],
+                        required_permissions=["document.search"],
+                        timeout_seconds=15.0,
+                    )
+                )
+            else:
+                steps.append(
+                    StepPlan(
+                        step_id="step_list_documents",
+                        sequence_number=1,
+                        description="List authorized documents",
+                        action_type="tool_call",
+                        tool_name="list_authorized_documents",
+                        arguments={},
+                        dependencies=[],
+                        required_permissions=["document.read"],
+                        timeout_seconds=15.0,
+                    )
+                )
         elif "list" in goal_lower or "what" in goal_lower:
             steps.append(
                 StepPlan(

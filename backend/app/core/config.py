@@ -156,6 +156,50 @@ class Settings(BaseSettings):
         description="Default execution timeout per task step"
     )
 
+    # =========================================================================
+    # Phase 5: File Intelligence & Document Understanding Configuration
+    # =========================================================================
+    ALLOWED_DOCUMENT_DIRS: List[str] = Field(
+        default=[],
+        description="Explicit allowlist of absolute directory paths authorized for document discovery and indexing"
+    )
+    DOCUMENT_MAX_FILE_BYTES: int = Field(
+        default=25 * 1024 * 1024,  # 25 MB
+        description="Maximum allowed document file size in bytes"
+    )
+    DOCUMENT_MAX_FILES_PER_SCAN: int = Field(
+        default=500,
+        description="Maximum number of files scanned in a single directory pass"
+    )
+    DOCUMENT_MAX_PDF_PAGES: int = Field(
+        default=500,
+        description="Maximum number of PDF pages extracted per document"
+    )
+    DOCUMENT_MAX_CHUNK_CHARS: int = Field(
+        default=2000,
+        description="Maximum character length of each chunk for retrieval and embedding"
+    )
+    DOCUMENT_CHUNK_OVERLAP_CHARS: int = Field(
+        default=200,
+        description="Overlap character length between consecutive text chunks"
+    )
+    DOCUMENT_MAX_EXTRACTION_SECONDS: float = Field(
+        default=60.0,
+        description="Maximum time in seconds allowed for a single document extraction pass"
+    )
+    DOCUMENT_MAX_CSV_ROWS: int = Field(
+        default=5000,
+        description="Maximum rows processed from tabular CSV/XLSX files"
+    )
+    DOCUMENT_MAX_JSON_DEPTH: int = Field(
+        default=10,
+        description="Maximum allowed nesting depth for JSON document parsing"
+    )
+    DOCUMENT_EXPORT_DIR: str = Field(
+        default="./data/exports",
+        description="Directory for safe exported document analysis files"
+    )
+
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -163,6 +207,15 @@ class Settings(BaseSettings):
         """Parse comma-separated string into a list of trimmed origins."""
         if isinstance(v, str):
             return [i.strip() for i in v.split(",") if i.strip()]
+        return v
+
+    @field_validator("ALLOWED_DOCUMENT_DIRS", mode="before")
+    @classmethod
+    def assemble_allowed_dirs(cls, v: Union[str, List[str]]) -> List[str]:
+        """Parse comma-separated or semicolon-separated directory paths."""
+        if isinstance(v, str):
+            delimiter = ";" if ";" in v else ","
+            return [i.strip() for i in v.split(delimiter) if i.strip()]
         return v
 
     @field_validator("LOG_LEVEL")
@@ -189,6 +242,13 @@ class Settings(BaseSettings):
     def resolved_screenshot_dir(self) -> Path:
         """Return the absolute path of the screenshots directory."""
         path = Path(self.SCREENSHOT_DIR).resolve()
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @property
+    def resolved_export_dir(self) -> Path:
+        """Return the absolute path of the exports directory."""
+        path = Path(self.DOCUMENT_EXPORT_DIR).resolve()
         path.mkdir(parents=True, exist_ok=True)
         return path
 

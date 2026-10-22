@@ -186,3 +186,56 @@ class TaskCancelledError(VenoraError):
     pass
 
 
+# =========================================================================
+# Phase 5: File Intelligence & Document Understanding Exceptions
+# =========================================================================
+class DocumentError(VenoraError):
+    """Base exception for document intelligence operations."""
+    pass
+
+
+class DocumentAccessDeniedError(DocumentError):
+    """Raised when attempting to access a file or directory outside authorized paths."""
+    def __init__(self, path: str, reason: str = "Path is not in the authorized directory allowlist.") -> None:
+        super().__init__(f"Access denied to '{path}': {reason}", details={"path": path, "reason": reason})
+        self.path = path
+        self.reason = reason
+
+
+class DocumentNotFoundError(DocumentError):
+    """Raised when a requested document cannot be found."""
+    def __init__(self, document_id: str) -> None:
+        super().__init__(f"Document '{document_id}' not found.", details={"document_id": document_id})
+        self.document_id = document_id
+
+
+class DocumentSizeLimitError(DocumentError):
+    """Raised when document size exceeds configured bounds."""
+    def __init__(self, size_bytes: int, max_bytes: int) -> None:
+        super().__init__(
+            f"Document size ({size_bytes} bytes) exceeds limit ({max_bytes} bytes).",
+            details={"size_bytes": size_bytes, "max_bytes": max_bytes}
+        )
+
+
+class UnsupportedDocumentTypeError(DocumentError):
+    """Raised when attempting to process an unsupported file extension or format."""
+    def __init__(self, file_type: str) -> None:
+        super().__init__(f"Document type '{file_type}' is unsupported.", details={"file_type": file_type})
+        self.file_type = file_type
+
+
+class DocumentExtractionError(DocumentError):
+    """Raised when parsing or extracting text from a document fails."""
+    def __init__(self, document_id: str, reason: str) -> None:
+        super().__init__(f"Failed to extract document '{document_id}': {reason}", details={"document_id": document_id, "reason": reason})
+        self.document_id = document_id
+        self.reason = reason
+
+
+class DocumentTimeoutError(DocumentError):
+    """Raised when document processing exceeds timeout bounds."""
+    pass
+
+
+
