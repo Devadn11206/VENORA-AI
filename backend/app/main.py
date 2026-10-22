@@ -13,6 +13,7 @@ from app.api.routes.browser import router as browser_router
 from app.api.routes.desktop import router as desktop_router
 from app.api.routes.documents import router as documents_router
 from app.api.routes.health import router as health_router
+from app.api.routes.memory import router as memory_router
 from app.api.routes.tasks import router as tasks_router
 
 from app.core.config import Settings, get_settings
@@ -188,6 +189,7 @@ def create_app() -> FastAPI:
     application.include_router(assistant_router, prefix=settings.API_V1_PREFIX)
     application.include_router(documents_router, prefix=settings.API_V1_PREFIX)
     application.include_router(browser_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(memory_router, prefix=settings.API_V1_PREFIX)
 
     return application
 

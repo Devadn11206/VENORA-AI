@@ -283,5 +283,35 @@ class SearchProviderError(BrowserError):
     pass
 
 
+# =========================================================================
+# Phase 7: Long-Term Memory & Retrieval Exceptions
+# =========================================================================
+class MemoryError(VenoraError):
+    """Base exception for long-term memory and retrieval operations."""
+    pass
 
 
+class MemoryNotFoundError(MemoryError):
+    """Raised when a requested memory ID does not exist."""
+    def __init__(self, memory_id: str) -> None:
+        super().__init__(f"Memory '{memory_id}' not found.", details={"memory_id": memory_id})
+        self.memory_id = memory_id
+
+
+class MemoryValidationError(MemoryError):
+    """Raised when candidate memory or update fails validation."""
+    def __init__(self, reason: str, details: Optional[Any] = None) -> None:
+        super().__init__(f"Memory validation error: {reason}", details=details)
+
+
+class MemoryAccessDeniedError(MemoryError):
+    """Raised when memory access or mutation violates authorization or scope."""
+    def __init__(self, action: str, reason: str) -> None:
+        super().__init__(f"Memory access denied for '{action}': {reason}", details={"action": action, "reason": reason})
+        self.action = action
+        self.reason = reason
+
+
+class EmbeddingError(MemoryError):
+    """Raised when generating embeddings fails or provider returns an error."""
+    pass

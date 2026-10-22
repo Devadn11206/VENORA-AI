@@ -254,6 +254,62 @@ class Settings(BaseSettings):
         description="Disallowed hostnames and private addresses to prevent SSRF"
     )
 
+    # =========================================================================
+    # Phase 7: Long-Term Memory & Contextual Retrieval Configuration
+    # =========================================================================
+    MEMORY_ENABLED: bool = Field(
+        default=True,
+        description="Master toggle for the persistent long-term memory subsystem"
+    )
+    MEMORY_AUTO_EXTRACT: bool = Field(
+        default=True,
+        description="Automatically extract candidate memories from completed assistant turns"
+    )
+    MEMORY_MAX_ITEMS: int = Field(
+        default=10000,
+        description="Maximum stored memory records before archival/cleanup"
+    )
+    MEMORY_MAX_RETRIEVED: int = Field(
+        default=8,
+        description="Maximum memory records injected into assistant context or search results"
+    )
+    MEMORY_MIN_RELEVANCE: float = Field(
+        default=0.25,
+        description="Minimum normalized relevance score for a retrieved memory to be included"
+    )
+    MEMORY_MAX_CONTEXT_CHARS: int = Field(
+        default=8000,
+        description="Maximum total characters of memory context injected into prompt"
+    )
+    MEMORY_MAX_CANDIDATES_PER_CONVERSATION: int = Field(
+        default=10,
+        description="Maximum memory items extracted in a single conversation cycle"
+    )
+    MEMORY_MIN_CONFIDENCE: float = Field(
+        default=0.75,
+        description="Minimum extraction confidence required to persist memory"
+    )
+    MEMORY_DEFAULT_TTL_DAYS: int = Field(
+        default=30,
+        description="Default TTL in days applied strictly to temporary task/episodic memories"
+    )
+    MEMORY_EMBEDDING_PROVIDER: Optional[str] = Field(
+        default=None,
+        description="Optional embedding provider name (e.g. 'openrouter', 'mock')"
+    )
+    MEMORY_EMBEDDING_MODEL: Optional[str] = Field(
+        default=None,
+        description="Optional model identifier for semantic embeddings"
+    )
+    MEMORY_EXTRACTION_TIMEOUT_SECONDS: float = Field(
+        default=30.0,
+        description="Timeout for AI memory extraction pass"
+    )
+    MEMORY_SEARCH_TIMEOUT_SECONDS: float = Field(
+        default=5.0,
+        description="Timeout for memory retrieval queries"
+    )
+
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

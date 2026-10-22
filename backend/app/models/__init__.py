@@ -9,6 +9,11 @@ from app.models.document import (
     DocumentChunk,
     DocumentProcessingStatus,
 )
+from app.models.memory import (
+    MemoryRecord,
+    MemoryCategory,
+    MemoryStatus,
+)
 
 __all__ = [
     "Base",
@@ -26,5 +31,8 @@ __all__ = [
     "AuthorizedDirectory",
     "DocumentChunk",
     "DocumentProcessingStatus",
+    "MemoryRecord",
+    "MemoryCategory",
+    "MemoryStatus",
 ]
 

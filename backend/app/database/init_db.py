@@ -34,6 +34,20 @@ def init_db(target_engine: Engine = engine) -> None:
             )
             conn.commit()
             logger.info("SQLite FTS5 virtual table 'document_chunks_fts' verified.")
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    """
+                    CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
+                        memory_id UNINDEXED,
+                        category UNINDEXED,
+                        content,
+                        tokenize = 'porter unicode61'
+                    );
+                    """
+                )
+            )
+            conn.commit()
+            logger.info("SQLite FTS5 virtual table 'memories_fts' verified.")
     except Exception as exc:
         logger.warning(f"Could not initialize FTS5 virtual table (lexical search fallback will be used): {exc}")
 

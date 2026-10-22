@@ -7,9 +7,9 @@ VENORA AI is a modular, locally executable, personal AI agent designed for Windo
 
 ---
 
-## Current Status: Phase 6 (Browser Automation & Web Intelligence Complete)
+## Current Status: Phase 7 (Long-Term Memory & Retrieval Complete)
 
-Phase 6 builds upon Phases 1 through 5 by establishing the Browser Automation & Web Intelligence Subsystem:
+Phase 7 builds upon Phases 1 through 6 by introducing the Long-Term Memory, Semantic Retrieval & Contextual Recall Subsystem:
 - **FastAPI Core**: Asynchronous application with versioned REST API (`/api/v1`).
 - **AI Provider Abstraction**: Modular `BaseAIProvider` and `OpenRouterProvider` with graceful offline fallback and zero credential leaks.
 - **Controlled Tool Registry**: Strict validation of tool names and Pydantic arguments with automatic rejection of unknown commands.
@@ -21,10 +21,14 @@ Phase 6 builds upon Phases 1 through 5 by establishing the Browser Automation & 
 - **Persistence & Crash Recovery**: `TaskRecoveryManager` reconciles interrupted tasks on restart; append-only audit event logging in `ExecutionLog`.
 - **File Intelligence & Document Understanding**: Authorized directory containment, multi-format text extraction (PDF, DOCX, TXT, MD, CSV, XLSX, JSON), SQLite FTS5 search, and grounded Q&A with citations.
 - **Browser Automation Subsystem**: Isolated Playwright Chromium sessions with strict URL validation, anti-SSRF protections, and redirect revalidation.
-- **Safe Page Inspection & Interaction**: Controlled extraction of headings, links, and text; accessible element interactions (click, fill, select, check, scroll) guarded by explicit approval for sensitive actions.
+- **Safe Page Inspection & Interaction**: Controlled extraction of headings, links, and text; accessible element interactions guarded by explicit approvals.
 - **Web Search & Multi-Page Research**: DuckDuckGo search integration and multi-page research synthesis with verifiable source citations.
-- **Browser REST Endpoints**: `/api/v1/browser/` for session lifecycle, navigation, page inspection, actions, search, and research.
-- **Comprehensive Testing**: 118 out of 118 automated tests passing across Phases 1, 2, 3, 4, 5, and 6.
+- **Long-Term Memory Subsystem**: Durable persistent storage for user preferences, explicit facts, project context, procedural workflows, and conversation summaries.
+- **Hybrid Semantic & Lexical Retrieval**: SQLite FTS5 full-text indexing combined with vector embedding cosine similarity and recency decay ranking.
+- **Deduplication & State-Aware Conflict Resolution**: Exact content hash deduplication with automatic supersession of outdated facts.
+- **Privacy & Prompt Injection Defenses**: Automatic credential redaction (`[REDACTED_SECRET]`) and memory prompt isolation.
+- **Memory REST API & Tools**: Full CRUD, search, diagnostics, and 7 permission-controlled memory tools.
+- **Comprehensive Testing**: 133 out of 133 automated tests passing across Phases 1 through 7.
 
 ---
 

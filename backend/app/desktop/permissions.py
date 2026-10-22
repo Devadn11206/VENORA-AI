@@ -50,6 +50,13 @@ class DesktopPermissionService:
         "browser.screenshot",
         "browser.search",
         "browser.research",
+        # Phase 7: Long-Term Memory & Retrieval Permissions
+        "memory.read",
+        "memory.search",
+        "memory.create",
+        "memory.update",
+        "memory.archive",
+        "memory.delete",
     }
 
     # Approved standard keyboard keys allowlist

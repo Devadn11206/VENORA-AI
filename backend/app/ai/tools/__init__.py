@@ -76,8 +76,28 @@ def create_default_tool_registry(
         registry.register(BrowserNavigateTool(b_manager))
         registry.register(BrowserInspectPageTool(b_manager))
         registry.register(BrowserActionTool(b_manager))
-        registry.register(BrowserCloseSessionTool(b_manager))
         registry.register(WebSearchTool(s_engine))
         registry.register(WebResearchTool(r_engine))
+
+    # Register approved Phase 7 memory tools when db session is available
+    if db is not None:
+        from app.memory.service import MemoryService
+        from app.ai.tools.memory_tools import (
+            MemorySearchTool,
+            MemoryGetTool,
+            MemorySaveTool,
+            MemoryUpdateTool,
+            MemoryArchiveTool,
+            MemoryDeleteTool,
+            MemoryListTool,
+        )
+        mem_svc = MemoryService(db=db, settings=cfg)
+        registry.register(MemorySearchTool(mem_svc))
+        registry.register(MemoryGetTool(mem_svc))
+        registry.register(MemorySaveTool(mem_svc))
+        registry.register(MemoryUpdateTool(mem_svc))
+        registry.register(MemoryArchiveTool(mem_svc))
+        registry.register(MemoryDeleteTool(mem_svc))
+        registry.register(MemoryListTool(mem_svc))
 
     return registry
