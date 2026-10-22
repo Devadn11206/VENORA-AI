@@ -38,6 +38,18 @@ class DesktopPermissionService:
         "document.compare",
         "document.index",
         "document.export",
+        # Phase 6: Browser Automation & Web Intelligence Permissions
+        "browser.session.create",
+        "browser.session.close",
+        "browser.navigate",
+        "browser.page.inspect",
+        "browser.interact.click",
+        "browser.interact.fill",
+        "browser.interact.select",
+        "browser.interact.scroll",
+        "browser.screenshot",
+        "browser.search",
+        "browser.research",
     }
 
     # Approved standard keyboard keys allowlist
@@ -84,10 +96,14 @@ class DesktopPermissionService:
             logger.warning(f"Action '{action}' blocked by active Emergency Stop.")
             raise DesktopEmergencyStopActiveError()
 
-        # 3. Master desktop automation switch (only applies to desktop.* actions, not document.* actions)
+        # 3. Master automation switches
         if action.startswith("desktop.") and not self.settings.DESKTOP_AUTOMATION_ENABLED:
             logger.warning(f"Permission denied for '{action}': Desktop automation is globally disabled.")
             raise DesktopPermissionDeniedError(action=action, reason="Desktop automation subsystem is disabled in configuration.")
+
+        if action.startswith("browser.") and not self.settings.BROWSER_ENABLED:
+            logger.warning(f"Permission denied for '{action}': Browser automation is globally disabled.")
+            raise DesktopPermissionDeniedError(action=action, reason="Browser automation subsystem is disabled in configuration.")
 
         # 4. Input automation specific check (Mouse & Keyboard)
         if action in {"desktop.input.mouse", "desktop.input.keyboard", "desktop.ui.activate"}:

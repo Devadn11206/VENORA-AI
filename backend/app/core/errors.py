@@ -238,4 +238,50 @@ class DocumentTimeoutError(DocumentError):
     pass
 
 
+# =========================================================================
+# Phase 6: Browser Automation & Web Intelligence Exceptions
+# =========================================================================
+class BrowserError(VenoraError):
+    """Base exception for browser automation subsystem."""
+    pass
+
+
+class URLSecurityError(BrowserError):
+    """Raised when a URL violates network security, SSRF rules, or protocol constraints."""
+    def __init__(self, url: str, reason: str) -> None:
+        super().__init__(f"URL security violation for '{url}': {reason}", details={"url": url, "reason": reason})
+        self.url = url
+        self.reason = reason
+
+
+class BrowserSessionError(BrowserError):
+    """Raised when a browser session fails to create, navigate, or exceed session limits."""
+    pass
+
+
+class BrowserSessionNotFoundError(BrowserError):
+    """Raised when referencing an invalid or expired browser session ID."""
+    def __init__(self, session_id: str) -> None:
+        super().__init__(f"Browser session '{session_id}' not found or has expired.", details={"session_id": session_id})
+        self.session_id = session_id
+
+
+class ElementNotFoundError(BrowserError):
+    """Raised when an interactive element or selector cannot be located on the current page."""
+    def __init__(self, selector: str) -> None:
+        super().__init__(f"Element '{selector}' was not found on the active page.", details={"selector": selector})
+        self.selector = selector
+
+
+class BrowserActionError(BrowserError):
+    """Raised when clicking, filling, or navigating within a page fails."""
+    pass
+
+
+class SearchProviderError(BrowserError):
+    """Raised when web search query execution fails."""
+    pass
+
+
+
 

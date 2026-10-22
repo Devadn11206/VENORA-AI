@@ -12,7 +12,8 @@ VENORA AI is engineered as a modular, local-first personal AI desktop assistant 
 - **Phase 2** added controlled desktop automation: application launching, process inspection, screenshot capturing, and emergency-stop circuit breaking.
 - **Phase 3** introduced the AI Reasoning & Structured Tool Calling Subsystem, connecting natural-language instructions with safe, validated tool dispatching.
 - **Phase 4** introduced the Task Orchestration & Execution Management Subsystem, providing multi-step planning, finite state machines, sequential execution, fail-fast cascading, and crash recovery.
-- **Phase 5** introduces the **File Intelligence & Document Understanding Subsystem**, providing authorized-directory containment, multi-format text extraction (PDF, DOCX, TXT, MD, CSV, XLSX, JSON), SQLite FTS5 search, and grounded AI understanding with verifiable citations.
+- **Phase 5** introduced the File Intelligence & Document Understanding Subsystem, providing authorized-directory containment, multi-format text extraction (PDF, DOCX, TXT, MD, CSV, XLSX, JSON), SQLite FTS5 search, and grounded AI understanding with verifiable citations.
+- **Phase 6** introduces the **Browser Automation & Web Intelligence Subsystem**, providing isolated Playwright Chromium sessions, anti-SSRF URL filtering, safe page inspection, controlled accessible interactions with approval gating, and multi-page web research synthesis.
 
 ```
 +-------------------------------------------------------------------------+

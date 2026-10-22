@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.routes.assistant import router as assistant_router
+from app.api.routes.browser import router as browser_router
 from app.api.routes.desktop import router as desktop_router
 from app.api.routes.documents import router as documents_router
 from app.api.routes.health import router as health_router
@@ -186,6 +187,7 @@ def create_app() -> FastAPI:
     application.include_router(desktop_router, prefix=settings.API_V1_PREFIX)
     application.include_router(assistant_router, prefix=settings.API_V1_PREFIX)
     application.include_router(documents_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(browser_router, prefix=settings.API_V1_PREFIX)
 
     return application
 

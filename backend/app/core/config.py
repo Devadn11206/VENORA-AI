@@ -200,6 +200,60 @@ class Settings(BaseSettings):
         description="Directory for safe exported document analysis files"
     )
 
+    # =========================================================================
+    # Phase 6: Browser Automation & Web Intelligence Configuration
+    # =========================================================================
+    BROWSER_ENABLED: bool = Field(
+        default=True,
+        description="Master switch for browser automation subsystem"
+    )
+    BROWSER_HEADLESS: bool = Field(
+        default=True,
+        description="Run browser in headless mode (default True for background safety)"
+    )
+    BROWSER_MAX_SESSIONS: int = Field(
+        default=3,
+        description="Maximum simultaneous active browser sessions"
+    )
+    BROWSER_SESSION_TIMEOUT_SECONDS: float = Field(
+        default=300.0,
+        description="Inactivity timeout after which an unclosed session is terminated"
+    )
+    BROWSER_PAGE_TIMEOUT_SECONDS: float = Field(
+        default=30.0,
+        description="Timeout for page navigation and selector location"
+    )
+    BROWSER_MAX_EXTRACTED_CHARS: int = Field(
+        default=50000,
+        description="Maximum characters of visible text extracted from a single web page"
+    )
+    BROWSER_MAX_PAGES_PER_RESEARCH: int = Field(
+        default=5,
+        description="Maximum distinct web pages visited in a single research task"
+    )
+    BROWSER_MAX_SEARCH_ATTEMPTS: int = Field(
+        default=3,
+        description="Maximum web search retry attempts per task"
+    )
+    BROWSER_ALLOW_HTTP: bool = Field(
+        default=False,
+        description="Allow insecure HTTP navigation (default False: HTTPS only)"
+    )
+    BROWSER_DOWNLOAD_DIR: str = Field(
+        default="./data/downloads",
+        description="Safe directory for browser downloads"
+    )
+    BROWSER_BLOCKED_HOSTS: List[str] = Field(
+        default=[
+            "localhost",
+            "127.0.0.1",
+            "0.0.0.0",
+            "::1",
+            "169.254.169.254",  # Cloud metadata IP
+        ],
+        description="Disallowed hostnames and private addresses to prevent SSRF"
+    )
+
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -249,6 +303,13 @@ class Settings(BaseSettings):
     def resolved_export_dir(self) -> Path:
         """Return the absolute path of the exports directory."""
         path = Path(self.DOCUMENT_EXPORT_DIR).resolve()
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @property
+    def resolved_download_dir(self) -> Path:
+        """Return the absolute path of the browser downloads directory."""
+        path = Path(self.BROWSER_DOWNLOAD_DIR).resolve()
         path.mkdir(parents=True, exist_ok=True)
         return path
 

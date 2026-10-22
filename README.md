@@ -7,9 +7,9 @@ VENORA AI is a modular, locally executable, personal AI agent designed for Windo
 
 ---
 
-## Current Status: Phase 5 (File Intelligence & Document Understanding Complete)
+## Current Status: Phase 6 (Browser Automation & Web Intelligence Complete)
 
-Phase 5 builds upon Phases 1 through 4 by establishing the File Intelligence & Document Understanding Subsystem:
+Phase 6 builds upon Phases 1 through 5 by establishing the Browser Automation & Web Intelligence Subsystem:
 - **FastAPI Core**: Asynchronous application with versioned REST API (`/api/v1`).
 - **AI Provider Abstraction**: Modular `BaseAIProvider` and `OpenRouterProvider` with graceful offline fallback and zero credential leaks.
 - **Controlled Tool Registry**: Strict validation of tool names and Pydantic arguments with automatic rejection of unknown commands.
@@ -19,12 +19,12 @@ Phase 5 builds upon Phases 1 through 4 by establishing the File Intelligence & D
 - **Finite State Machines**: Validated lifecycle transitions for Tasks and Steps with fail-fast cascading error policies.
 - **Sequential Execution Engine**: Safely executes approved steps through the Tool Registry, enforcing permissions, timeouts, and emergency stops.
 - **Persistence & Crash Recovery**: `TaskRecoveryManager` reconciles interrupted tasks on restart; append-only audit event logging in `ExecutionLog`.
-- **Security-First File Intelligence**: Strict path containment and directory allowlisting (`ALLOWED_DOCUMENT_DIRS`), rejecting path traversal and symlink escapes.
-- **Multi-Format Document Extraction**: Normalized structural text extraction from TXT, Markdown, PDF, DOCX, CSV, XLSX, and JSON with page and section preservation.
-- **Local Indexing & FTS Search**: SQLite FTS5 full-text lexical search with BM25 ranking and standard SQL fallback.
-- **Grounded AI Understanding**: Document summarization, retrieval-augmented Q&A with verifiable page/section citations, document comparison, and safe export.
-- **Document REST Endpoints**: `/api/v1/documents` for directory authorization, scanning, text extraction, search, summarization, Q&A, and comparisons.
-- **Comprehensive Testing**: 101 out of 101 automated tests passing across Phases 1, 2, 3, 4, and 5.
+- **File Intelligence & Document Understanding**: Authorized directory containment, multi-format text extraction (PDF, DOCX, TXT, MD, CSV, XLSX, JSON), SQLite FTS5 search, and grounded Q&A with citations.
+- **Browser Automation Subsystem**: Isolated Playwright Chromium sessions with strict URL validation, anti-SSRF protections, and redirect revalidation.
+- **Safe Page Inspection & Interaction**: Controlled extraction of headings, links, and text; accessible element interactions (click, fill, select, check, scroll) guarded by explicit approval for sensitive actions.
+- **Web Search & Multi-Page Research**: DuckDuckGo search integration and multi-page research synthesis with verifiable source citations.
+- **Browser REST Endpoints**: `/api/v1/browser/` for session lifecycle, navigation, page inspection, actions, search, and research.
+- **Comprehensive Testing**: 118 out of 118 automated tests passing across Phases 1, 2, 3, 4, 5, and 6.
 
 ---
 
